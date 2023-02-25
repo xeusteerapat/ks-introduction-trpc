@@ -5,9 +5,9 @@ services:
     restart: always
     env_file: ./.env
     environment:
-      - MYSQL_ROOT_PASSWORD=trpcdev
-      - MYSQL_PASSWORD=trpcdev
-      - MYSQLDB_DATABASE=intro_trpc
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQLDB_DATABASE=${MYSQLDB_DATABASE}
     ports:
       - 3308:3306
     volumes:
