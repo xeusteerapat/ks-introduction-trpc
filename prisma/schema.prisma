@@ -9,9 +9,9 @@ datasource db {
 }
 
 model Notes {
-  id        Int      @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   title     String
   content   String
-  createdAt DateTime @db.Timestamp()
-  updatedAt DateTime @db.Timestamp()
+  createdAt DateTime? @default(now()) @db.DateTime(0)
+  updatedAt DateTime? @default(now()) @db.DateTime(0)
 }
