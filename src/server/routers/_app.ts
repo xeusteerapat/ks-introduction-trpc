@@ -30,6 +30,8 @@ export const appRouter = router({
           updatedAt: new Date(),
         },
       });
+
+      return newNote;
     }),
 });
 
