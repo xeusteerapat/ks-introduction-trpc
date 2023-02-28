@@ -33,6 +33,10 @@ export const appRouter = router({
 
       return newNote;
     }),
+  allNotes: procedure.query(async () => {
+    const notes = await prisma.notes.findMany();
+    return notes;
+  }),
 });
 
 // export type definition of API
