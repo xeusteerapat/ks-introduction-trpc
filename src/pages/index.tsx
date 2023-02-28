@@ -1,15 +1,37 @@
 import { useState } from 'react';
 import { trpc } from '../libs/trpc';
 
+const NoteCard: React.FC<{ title: string; content: string }> = ({
+  title,
+  content,
+}) => {
+  return (
+    <div>
+      <div>
+        <h4>
+          <b>{title}</b>
+        </h4>
+        <p>{content}</p>
+      </div>
+    </div>
+  );
+};
+
 export default function Home() {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
 
+  const utils = trpc.useContext();
   const hello = trpc.hello.useQuery({
     message: 'Yo! tRPC',
   });
 
-  const addNote = trpc.addNote.useMutation();
+  const addNote = trpc.addNote.useMutation({
+    async onSuccess() {
+      await utils.allNotes.invalidate();
+    },
+  });
+  const allNotes = trpc.allNotes.useQuery();
 
   const handleTitleChange = (e: React.FormEvent<HTMLInputElement>) => {
     setTitle(e.currentTarget.value);
@@ -64,7 +86,12 @@ export default function Home() {
           Add Note
         </button>
       </form>
-      <div></div>
+      <>
+        {allNotes.data &&
+          allNotes.data.map(note => (
+            <NoteCard key={note.id} title={note.title} content={note.content} />
+          ))}
+      </>
     </main>
   );
 }
