@@ -11,7 +11,9 @@ const NoteCard: React.FC<{ title: string; content: string }> = ({
         <h4>
           <b>{title}</b>
         </h4>
-        <p>{content}</p>
+        <p>
+          {content} | <span> X</span>
+        </p>
       </div>
     </div>
   );
@@ -23,7 +25,7 @@ export default function Home() {
 
   const utils = trpc.useContext();
   const hello = trpc.hello.useQuery({
-    message: 'Yo! tRPC',
+    text: 'Yo! tRPC',
   });
 
   const addNote = trpc.addNote.useMutation({
@@ -31,6 +33,7 @@ export default function Home() {
       await utils.allNotes.invalidate();
     },
   });
+
   const allNotes = trpc.allNotes.useQuery();
 
   const handleTitleChange = (e: React.FormEvent<HTMLInputElement>) => {
