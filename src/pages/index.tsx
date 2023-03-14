@@ -1,19 +1,19 @@
 import { useState } from 'react';
 import { trpc } from '../libs/trpc';
 
-const NoteCard: React.FC<{ title: string; content: string }> = ({
-  title,
-  content,
-}) => {
+const NoteCard: React.FC<{
+  id: number;
+  title: string;
+  content: string;
+  deleteNote: (id: number) => void;
+}> = ({ title, content, deleteNote, id }) => {
   return (
-    <div>
+    <div onClick={() => deleteNote(id)}>
       <div>
         <h4>
           <b>{title}</b>
         </h4>
-        <p>
-          {content} | <span> X</span>
-        </p>
+        <p>{content}</p>
       </div>
     </div>
   );
@@ -29,6 +29,12 @@ export default function Home() {
   });
 
   const addNote = trpc.addNote.useMutation({
+    async onSuccess() {
+      await utils.allNotes.invalidate();
+    },
+  });
+
+  const deleteNote = trpc.deleteNote.useMutation({
     async onSuccess() {
       await utils.allNotes.invalidate();
     },
@@ -51,6 +57,10 @@ export default function Home() {
       title,
       content,
     });
+  };
+
+  const handleDeleteNote = async (noteId: number) => {
+    deleteNote.mutate({ id: noteId });
   };
 
   if (!hello.data) {
@@ -92,7 +102,13 @@ export default function Home() {
       <>
         {allNotes.data &&
           allNotes.data.map(note => (
-            <NoteCard key={note.id} title={note.title} content={note.content} />
+            <NoteCard
+              id={note.id}
+              key={note.id}
+              title={note.title}
+              content={note.content}
+              deleteNote={handleDeleteNote}
+            />
           ))}
       </>
     </main>
