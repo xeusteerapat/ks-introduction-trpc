@@ -37,6 +37,19 @@ export const appRouter = router({
     const notes = await prisma.notes.findMany();
     return notes;
   }),
+  deleteNote: procedure
+    .input(
+      z.object({
+        id: z.number(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      await prisma.notes.delete({
+        where: {
+          id: input.id,
+        },
+      });
+    }),
 });
 
 // export type definition of API
