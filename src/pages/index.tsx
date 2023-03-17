@@ -1,5 +1,14 @@
-import { useState } from 'react';
 import { trpc } from '../libs/trpc';
+import {
+  Box,
+  Button,
+  Container,
+  Group,
+  TextInput,
+  Title,
+  Textarea,
+} from '@mantine/core';
+import { useForm } from '@mantine/form';
 
 const NoteCard: React.FC<{
   id: number;
@@ -20,8 +29,18 @@ const NoteCard: React.FC<{
 };
 
 export default function Home() {
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
+  const form = useForm({
+    initialValues: {
+      title: '',
+      content: '',
+    },
+    validate: {
+      title: value =>
+        value.length < 2 ? 'Name must have at least 2 letters' : null,
+      content: value =>
+        value.length < 2 ? 'Name must have at least 2 letters' : null,
+    },
+  });
 
   const utils = trpc.useContext();
   const hello = trpc.hello.useQuery({
@@ -42,20 +61,12 @@ export default function Home() {
 
   const allNotes = trpc.allNotes.useQuery();
 
-  const handleTitleChange = (e: React.FormEvent<HTMLInputElement>) => {
-    setTitle(e.currentTarget.value);
-  };
-
-  const handleContentChange = (e: React.FormEvent<HTMLTextAreaElement>) => {
-    setContent(e.currentTarget.value);
-  };
-
   const handleSubmitNote = (e: React.SyntheticEvent) => {
     e.preventDefault();
 
     addNote.mutate({
-      title,
-      content,
+      title: form.values.title,
+      content: form.values.content,
     });
   };
 
@@ -72,33 +83,39 @@ export default function Home() {
   }
 
   return (
-    <main>
-      <h1>Welcome to tRPC Note</h1>
-      <h2>{hello.data.greeting}</h2>
-      <form onSubmit={handleSubmitNote}>
-        <label htmlFor='title'>Title</label>
-        <input
-          type='text'
-          id='tittle'
-          name='title'
-          onChange={handleTitleChange}
+    <Container>
+      <Title order={1}>Welcome to tRPC Note</Title>
+      <Title order={2}>{hello.data.greeting}</Title>
+      <Box maw={320} mx='auto'>
+        <TextInput
+          label='Title'
+          placeholder='Enter note title'
+          {...form.getInputProps('title')}
         />
-        <label htmlFor='content'>Content</label>
-        <textarea
-          id='content'
-          cols={30}
-          rows={10}
-          name='content'
-          onChange={handleContentChange}
-        ></textarea>
-        <button
-          style={{
-            marginTop: '1rem',
-          }}
-        >
-          Add Note
-        </button>
-      </form>
+        <Textarea
+          mt='md'
+          label='Content'
+          placeholder='Enter content'
+          autosize
+          minRows={4}
+          maxRows={10}
+          {...form.getInputProps('content')}
+        />
+
+        <Group position='center' mt='xl'>
+          <Button
+            fullWidth
+            variant='gradient'
+            gradient={{ from: 'teal', to: 'blue', deg: 60 }}
+            onClick={e => {
+              handleSubmitNote(e);
+              form.reset();
+            }}
+          >
+            Add Note
+          </Button>
+        </Group>
+      </Box>
       <>
         {allNotes.data &&
           allNotes.data.map(note => (
@@ -111,6 +128,6 @@ export default function Home() {
             />
           ))}
       </>
-    </main>
+    </Container>
   );
 }
