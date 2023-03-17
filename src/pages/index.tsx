@@ -8,7 +8,8 @@ import {
   Title,
   Textarea,
 } from '@mantine/core';
-import { useForm } from '@mantine/form';
+import { useForm, zodResolver } from '@mantine/form';
+import { z } from 'zod';
 
 const NoteCard: React.FC<{
   id: number;
@@ -28,17 +29,19 @@ const NoteCard: React.FC<{
   );
 };
 
+const schema = z.object({
+  title: z.string().min(5, { message: 'Title should have at least 5 letters' }),
+  content: z
+    .string()
+    .min(5, { message: 'Name should have at least 5 letters' }),
+});
+
 export default function Home() {
   const form = useForm({
+    validate: zodResolver(schema),
     initialValues: {
       title: '',
       content: '',
-    },
-    validate: {
-      title: value =>
-        value.length < 2 ? 'Name must have at least 2 letters' : null,
-      content: value =>
-        value.length < 2 ? 'Name must have at least 2 letters' : null,
     },
   });
 
@@ -87,34 +90,37 @@ export default function Home() {
       <Title order={1}>Welcome to tRPC Note</Title>
       <Title order={2}>{hello.data.greeting}</Title>
       <Box maw={320} mx='auto'>
-        <TextInput
-          label='Title'
-          placeholder='Enter note title'
-          {...form.getInputProps('title')}
-        />
-        <Textarea
-          mt='md'
-          label='Content'
-          placeholder='Enter content'
-          autosize
-          minRows={4}
-          maxRows={10}
-          {...form.getInputProps('content')}
-        />
-
-        <Group position='center' mt='xl'>
-          <Button
-            fullWidth
-            variant='gradient'
-            gradient={{ from: 'teal', to: 'blue', deg: 60 }}
-            onClick={e => {
-              handleSubmitNote(e);
-              form.reset();
-            }}
-          >
-            Add Note
-          </Button>
-        </Group>
+        <form onSubmit={form.onSubmit(values => console.log(values))}>
+          <TextInput
+            withAsterisk
+            label='Title'
+            placeholder='Enter note title'
+            {...form.getInputProps('title')}
+          />
+          <Textarea
+            withAsterisk
+            mt='md'
+            label='Content'
+            placeholder='Enter content'
+            autosize
+            minRows={4}
+            maxRows={10}
+            {...form.getInputProps('content')}
+          />
+          <Group position='center' mt='xl'>
+            <Button
+              fullWidth
+              variant='gradient'
+              gradient={{ from: 'teal', to: 'blue', deg: 60 }}
+              onClick={e => {
+                handleSubmitNote(e);
+                form.reset();
+              }}
+            >
+              Add Note
+            </Button>
+          </Group>
+        </form>
       </Box>
       <>
         {allNotes.data &&

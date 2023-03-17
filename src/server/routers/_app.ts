@@ -17,8 +17,8 @@ export const appRouter = router({
   addNote: procedure
     .input(
       z.object({
-        title: z.string(),
-        content: z.string(),
+        title: z.string().min(5),
+        content: z.string().min(5),
       })
     )
     .mutation(async ({ input }) => {
