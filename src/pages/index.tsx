@@ -33,7 +33,7 @@ const schema = z.object({
   title: z.string().min(5, { message: 'Title should have at least 5 letters' }),
   content: z
     .string()
-    .min(5, { message: 'Name should have at least 5 letters' }),
+    .min(5, { message: 'Content should have at least 5 letters' }),
 });
 
 export default function Home() {
@@ -64,15 +64,6 @@ export default function Home() {
 
   const allNotes = trpc.allNotes.useQuery();
 
-  const handleSubmitNote = (e: React.SyntheticEvent) => {
-    e.preventDefault();
-
-    addNote.mutate({
-      title: form.values.title,
-      content: form.values.content,
-    });
-  };
-
   const handleDeleteNote = async (noteId: number) => {
     deleteNote.mutate({ id: noteId });
   };
@@ -90,7 +81,16 @@ export default function Home() {
       <Title order={1}>Welcome to tRPC Note</Title>
       <Title order={2}>{hello.data.greeting}</Title>
       <Box maw={320} mx='auto'>
-        <form onSubmit={form.onSubmit(values => console.log(values))}>
+        <form
+          onSubmit={form.onSubmit(values => {
+            addNote.mutate({
+              title: values.title,
+              content: values.content,
+            });
+
+            form.reset();
+          })}
+        >
           <TextInput
             withAsterisk
             label='Title'
@@ -109,13 +109,10 @@ export default function Home() {
           />
           <Group position='center' mt='xl'>
             <Button
+              type='submit'
               fullWidth
               variant='gradient'
               gradient={{ from: 'teal', to: 'blue', deg: 60 }}
-              onClick={e => {
-                handleSubmitNote(e);
-                form.reset();
-              }}
             >
               Add Note
             </Button>
